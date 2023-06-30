@@ -8,7 +8,38 @@
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
 <body>
-    
-    <script src='main.js'></script>
+    <nav>
+        <h2>OTP-Verification-Project</h2>
+        <button onclick="register()">Register</button>
+    </nav>
+    <div class="login-form">
+        <input type="email" class="userEmail" placeholder="Enter Email Id:">
+        <input type="password" class="userPassword" placeholder="Enter Password:">
+        <button onclick="login()">Login</button>
+    </div>
+    <script>
+        const register = () => {
+            window.location.href = "Register.html"
+        }
+
+        const login = () => {
+            var userEmail = document.querySelector(".userEmail").value;
+            var userPassword = document.querySelector(".userPassword").value;
+
+            console.log(userEmail)
+            console.log(userPassword)
+
+            fetch("http://localhost:8080/user/userEmail/"+userEmail+"/userPassword/"+userPassword)
+            .then((response) => {
+                if(response.status == 200 ){
+                    console.log("OTP sent!!")
+                    return response.json
+                }else{
+                    console.log("Invalid Credentials!!")
+                }
+            })
+            .then(() => window.location.href = "Verification.html")
+        }
+    </script>
 </body>
 </html>

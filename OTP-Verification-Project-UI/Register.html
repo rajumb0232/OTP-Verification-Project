@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>OTP-Verification-Project</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+    <nav>
+        <h2>OTP-Verification-Project</h2>
+        <button onclick="login()">Login</button>
+    </nav>
+    <div class="login-form">
+        <input type="text" class="userName" placeholder="Enter Name:">
+        <input type="email" class="userEmail" placeholder="Enter Email Id:">
+        <input type="password" class="userPassword" placeholder="Enter Password:">
+        <button onclick="register()">Register</button>
+    </div>
+    <script>
+        const login = () => {
+            window.location.href = "Login.html"
+        }
+
+        const register = () => {
+
+            var userName = document.querySelector(".userName").value;
+            var userEmail = document.querySelector(".userEmail").value;
+            var userPassword = document.querySelector(".userPassword").value;
+
+            var data = {
+                "userName" : userName,
+                "userEmail" : userEmail,
+                "userPassword" : userPassword
+            }
+
+            fetch("http://localhost:8080/user",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then((response) => response.json)
+            .then((data) => console.log(data))
+            .then(window.location.href = "Login.html")
+        }
+    </script>
+</body>
+</html>

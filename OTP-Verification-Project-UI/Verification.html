@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>OTP-Verification-Project</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+   
+</head>
+<body>
+    <nav>
+        <h2>OTP-Verification-Project</h2>
+        <button onclick="back()">Back</button>
+    </nav>
+    <div class="login-form">
+        <input type="text" class="otp-token" placeholder="Enter OTP:">
+        <button onclick="verify()">Login</button>
+    </div>
+    
+    <script>
+        const back = () => {
+            window.location.href = "Login.html"
+        }
+
+        const verify = () => {
+            var otp = document.querySelector(".otp-token").value;
+            
+            fetch("http://localhost:8080/user/otp/"+otp)
+            .then((response) =>{
+                if(response.status == 200){
+                    return  response.json
+                }else if (response.status == 404){
+                    console.log("Invalid Credentials!!")
+                }else{
+                    console.log("Invalid OTP!!")
+                }
+            })
+            .then((data) => console.log(data))
+            .then(() => window.location.href = "home.html")
+        }
+
+    </script>
+</body>
+</html>
