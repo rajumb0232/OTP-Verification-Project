@@ -24,20 +24,20 @@ public class UserController {
 	
 	@CrossOrigin
 	@PostMapping
-	public ResponseEntity<User> saveUser(@RequestBody User user){
+	public ResponseEntity<User> saveUser(@RequestBody User user) throws Exception{
 		return userService.saveUser(user);
 	}
 	
 	@CrossOrigin
 	@GetMapping("/userId/{userId}")
-	public ResponseEntity<User> findUserById(@PathVariable int userId, HttpSession session){
+	public ResponseEntity<User> findUserById(@PathVariable int userId, HttpSession session) throws Exception{
 		return userService.findUserById(userId, session);
 	}
 	
 	@CrossOrigin
 	@GetMapping("/userEmail/{userEmail}/userPassword/{userPassword}")
 	public ResponseEntity<Object> userLogin(@PathVariable String userEmail,
-			@PathVariable String userPassword, HttpSession session){
+			@PathVariable String userPassword, HttpSession session) throws Exception{
 		return userService.findUserByEmailByPassword(userEmail, userPassword, session);
 	}
 	

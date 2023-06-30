@@ -19,6 +19,7 @@ import com.smtp.otp_verification_project.exception.UserNotFoundByEmailException;
 import com.smtp.otp_verification_project.exception.UserNotLoggedInException;
 import com.smtp.otp_verification_project.exception.WrongOTPException;
 import com.smtp.otp_verification_project.exception.WrongPasswordException;
+import com.smtp.otp_verification_project.utility.EncryptDecrypt;
 
 @Service
 public class UserService {
@@ -29,14 +30,19 @@ public class UserService {
 	@Autowired
 	private JavaMailSender javaMailSender;
 
-	public ResponseEntity<User> saveUser(User user) {
+	public ResponseEntity<User> saveUser(User user) throws Exception {
+		String encryptedPassword = EncryptDecrypt.encryptPassword(user.getUserPassword());
+		String encryptedEmail = EncryptDecrypt.encryptEmail(user.getUserEmail());
+		user.setUserPassword(encryptedPassword);
+		user.setUserEmail(encryptedEmail);
 		user = userDao.saveUser(user);
 		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 
-	public ResponseEntity<User> findUserById(int userId, HttpSession session) {
+	public ResponseEntity<User> findUserById(int userId, HttpSession session) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user!=null) {
+//			user.setUserEmail(EncryptDecrypt.decryptEmail(user.getUserEmail()));
 			return new ResponseEntity<User>(user, HttpStatus.FOUND);
 		} else {
 			throw new UserNotLoggedInException("User is not logged-in!!");
@@ -44,18 +50,18 @@ public class UserService {
 	}
 
 	public ResponseEntity<Object> findUserByEmailByPassword(String userEmail, String userPassword,
-			HttpSession session) {
+			HttpSession session) throws Exception{
 		User user = (User) session.getAttribute("user");
 		if (user!=null) {
 			return new ResponseEntity<>(user, HttpStatus.FOUND);
 		} else {
-			System.err.println(user);
-			Optional<User> optional = userDao.findUserByEmail(userEmail);
+			String encryptedEmail = EncryptDecrypt.encryptEmail(userEmail);
+			Optional<User> optional = userDao.findUserByEmail(encryptedEmail);
 			if (optional.isEmpty()) {
 				throw new UserNotFoundByEmailException("Failed to find the User!!");
 			} else {
 				User exUser = optional.get();
-				if (exUser.getUserPassword().equals(userPassword)) {
+				if (EncryptDecrypt.verifyPassword(userPassword, exUser.getUserPassword())) {
 					String otpToken = otpGenerator();
 					session.setAttribute("otp", otpToken);
 					try {
