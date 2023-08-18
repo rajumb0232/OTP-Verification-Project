@@ -46,14 +46,14 @@ public class UserController {
 	
 	@GetMapping("/otp/{otpToken}")
 	public ResponseEntity<Object> verifyOTP(@PathVariable String otpToken, HttpServletRequest request){
-		HttpSession session = request.getSession(false);
-		if(session!=null) {
-			System.err.println("session otp in controller: "+session.getAttribute("otp"));
-			return userService.verifyOTP(otpToken, session);
-		}else {
-			System.err.println("No session found!!");
-			return new ResponseEntity<Object> ("No session found!!", HttpStatus.BAD_REQUEST);
-		}
+//		HttpSession session = request.getSession(false);
+//		if(session!=null) {
+//			System.err.println("session otp in controller: "+session.getAttribute("otp"));
+			return userService.verifyOTP(otpToken, request.getSession());
+//		}else {
+//			System.err.println("No session found!!");
+//			return new ResponseEntity<Object> ("No session found!!", HttpStatus.BAD_REQUEST);
+//		}
 		
 	}
 	

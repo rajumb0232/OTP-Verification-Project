@@ -34,7 +34,7 @@ public class UserService {
 	
 	@Autowired
 	private ModelMapper modelMapper;
-
+	
 	public ResponseEntity<User> saveUser(User user) throws Exception {
 		String encryptedPassword = EncryptDecrypt.encryptPassword(user.getUserPassword());
 		String encryptedEmail = EncryptDecrypt.encryptEmail(user.getUserEmail());

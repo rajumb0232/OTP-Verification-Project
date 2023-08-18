@@ -57,9 +57,11 @@
             var message =  document.getElementById("message")
                 message.textContent = "Processing..."
                 message.style.color = "#565656"
-
+            let badRequest = false;
+            let inn = false;
             fetch("http://localhost:8080/user/userEmail/"+userEmail+"/userPassword/"+userPassword)
             .then((response) => {
+                inn = true;
                 if(response.status == 200 ){
                     console.log("OTP sent!!")
                     var message =  document.getElementById("message")
@@ -69,17 +71,31 @@
                     otp_btn.hidden = false;
                     verify_btn.hidden = false;
 
-                    return response.json;
-                }else if(response.status == 302){
+                    return response.json();
+                }else if(response.status == 200){
                     window.location.href = "home.html";
                 }
-                else{
+                else if(response.status == 400){
+                    badRequest = true;
+                    return response.json();
+                    
+                }
+            }).then((data) => {
+                if(badRequest){
                     btn.disabled = false;
                     btn.classList.remove("requested");
-                    console.log("Invalid Credentials!!")
+                    console.log(data)
                     var message =  document.getElementById("message")
-                    message.textContent = "Invalid Credentials!!"
+                    message.textContent = data.rootCause;
                     message.style.color = "#ff3f3f"
+                }
+            })
+            .catch((error) => {
+                if(!inn){
+                message.textContent = "Something went wrong! Please try after some time."
+                message.style.color = "#ff3f3f"
+                btn.disabled = false;
+                btn.classList.remove("requested");
                 }
             })
            
@@ -104,11 +120,8 @@
                 if(response.status == 200){
                     window.location.href = "home.html"
                     return  response.json
-                }else if (response.status == 404){
-                    verify_btn.disabled = false;
-                    verify_btn.classList.remove("requested");
-                    console.log("Invalid Credentials!!")
-                }else{
+                }
+                else{
                     verify_btn.disabled = false;
                     verify_btn.classList.remove("requested");
                     document.getElementById('errorText').textContent = "Invalid OTP!!"
