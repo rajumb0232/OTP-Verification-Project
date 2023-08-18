@@ -45,5 +45,7 @@ public class EncryptDecrypt {
         byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedEmail));
         return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
+    
+
 
 }

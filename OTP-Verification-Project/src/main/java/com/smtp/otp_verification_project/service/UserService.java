@@ -6,6 +6,7 @@ import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.smtp.otp_verification_project.dao.UserDao;
+import com.smtp.otp_verification_project.dto.UserResponse;
 import com.smtp.otp_verification_project.entity.User;
 import com.smtp.otp_verification_project.exception.UserNotFoundByEmailException;
 import com.smtp.otp_verification_project.exception.UserNotLoggedInException;
@@ -29,6 +31,9 @@ public class UserService {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
+	
+	@Autowired
+	private ModelMapper modelMapper;
 
 	public ResponseEntity<User> saveUser(User user) throws Exception {
 		String encryptedPassword = EncryptDecrypt.encryptPassword(user.getUserPassword());
@@ -39,11 +44,11 @@ public class UserService {
 		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 
-	public ResponseEntity<User> findUserById(int userId, HttpSession session) throws Exception {
+	public ResponseEntity<UserResponse> findUserById(int userId, HttpSession session) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user!=null) {
-//			user.setUserEmail(EncryptDecrypt.decryptEmail(user.getUserEmail()));
-			return new ResponseEntity<User>(user, HttpStatus.FOUND);
+			UserResponse response = modelMapper.map(user, UserResponse.class);
+			return new ResponseEntity<UserResponse>(response, HttpStatus.FOUND);
 		} else {
 			throw new UserNotLoggedInException("User is not logged-in!!");
 		}
@@ -63,12 +68,15 @@ public class UserService {
 				User exUser = optional.get();
 				if (EncryptDecrypt.verifyPassword(userPassword, exUser.getUserPassword())) {
 					String otpToken = otpGenerator();
+					System.err.println("recieved OTP:"+ otpToken);
 					session.setAttribute("otp", otpToken);
+					System.err.println("OTP in session: "+session.getAttribute("otp"));
 					try {
 						session.removeAttribute("userEmail");
 					}finally {
 						session.setAttribute("userEmail", exUser.getUserEmail());
 						sendOtpEmail(userEmail, otpToken);
+						System.err.println("OTP sent!!");
 					} 
 					return new ResponseEntity<>("Please send back the request to verify OTP sent on your mail.",
 							HttpStatus.OK);
@@ -79,9 +87,10 @@ public class UserService {
 
 	}
 
-	public ResponseEntity<User> verifyOTP(String otpToken, HttpSession session) {
+	public ResponseEntity<Object> verifyOTP(String otpToken, HttpSession session) {
 		String otp = (String) session.getAttribute("otp");
-		if(otp.equals(null)) {
+		System.err.println(otp);
+		if(otp==null) {
 			throw new UserNotLoggedInException("Failed to verify OTP!!");
 		}else {
 			Optional<User> optional = userDao.findUserByEmail((String)session.getAttribute("userEmail"));

@@ -1,7 +1,9 @@
 package com.smtp.otp_verification_project;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class OtpVerificationProjectApplication {
@@ -9,5 +11,11 @@ public class OtpVerificationProjectApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(OtpVerificationProjectApplication.class, args);
 	}
+	
+	@Bean
+	public ModelMapper getModelMapper() {
+		return new ModelMapper();
+	}
+
 
 }
