@@ -9,22 +9,23 @@
 </head>
 <body>
     <nav>
-        <h2>OTP-Verification-Project</h2>
+        <h2><span>📦</span> OTP-Verification-Project</h2>
         <button onclick="login()">Login</button>
     </nav>
     <div class="login-form">
+        <h2>Register</h2>
         <input type="text" class="userName" placeholder="Enter Name:">
         <input type="email" class="userEmail" placeholder="Enter Email Id:">
         <input type="password" class="userPassword" placeholder="Enter Password:">
-        <button onclick="register()">Register</button>
+        <button onclick="register()">Confirm</button>
     </div>
     <script>
         const login = () => {
             window.location.href = "Login.html"
         }
-
+        let success = false;
         const register = () => {
-
+            console.log("in register")
             var userName = document.querySelector(".userName").value;
             var userEmail = document.querySelector(".userEmail").value;
             var userPassword = document.querySelector(".userPassword").value;
@@ -34,7 +35,7 @@
                 "userEmail" : userEmail,
                 "userPassword" : userPassword
             }
-
+           
             fetch("http://localhost:8080/user",
             {
                 method:"POST",
@@ -43,9 +44,18 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then((response) => response.json)
-            .then((data) => console.log(data))
-            .then(window.location.href = "Login.html")
+            .then((response) =>{
+                if(response.status == 201){
+                    success = true;
+                }
+                response.json();
+            })
+            .then((data)=>{
+                (data) => console.log(data)
+                if(success){
+                    window.location.href = "Login.html"
+                }
+            })
         }
     </script>
 </body>

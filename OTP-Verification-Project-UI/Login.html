@@ -9,36 +9,112 @@
 </head>
 <body>
     <nav>
-        <h2>OTP-Verification-Project</h2>
-        <button onclick="register()">Register</button>
+        <h2><span>📦</span> OTP-Verification-Project</h2>
+        <button onclick="register()" >Register</button>
     </nav>
     <div class="login-form">
+        <h2>Login</h2>
         <input type="email" class="userEmail" placeholder="Enter Email Id:">
         <input type="password" class="userPassword" placeholder="Enter Password:">
-        <button onclick="login()">Login</button>
+        <p id="message"></p>
+        <button onclick="login()" class="login-btn">Get OTP</button>
+        <input type="text" class="otp-token" placeholder="Enter OTP:" hidden="true">
+        <p id="errorText"></p>
+        <button onclick="verify()" class="verify-btn" hidden="true">Verify</button>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <script>
-        const register = () => {
+        const register = (d) => {
             window.location.href = "Register.html"
         }
 
         const login = () => {
+            console.log("in")
+            var btn = document.querySelector(".login-btn");
+            btn.disabled = true;
+            btn.classList.add("requested")
             var userEmail = document.querySelector(".userEmail").value;
             var userPassword = document.querySelector(".userPassword").value;
+            var otp_btn = document.querySelector(".otp-token");
+            var verify_btn = document.querySelector(".verify-btn");
 
             console.log(userEmail)
             console.log(userPassword)
+
+            var message =  document.getElementById("message")
+                message.textContent = "Processing..."
+                message.style.color = "#565656"
 
             fetch("http://localhost:8080/user/userEmail/"+userEmail+"/userPassword/"+userPassword)
             .then((response) => {
                 if(response.status == 200 ){
                     console.log("OTP sent!!")
-                    return response.json
-                }else{
+                    var message =  document.getElementById("message")
+                    message.textContent = "Enter the OTP send to your mail"
+                    message.style.color = "#565656"
+
+                    otp_btn.hidden = false;
+                    verify_btn.hidden = false;
+
+                    return response.json;
+                }else if(response.status == 302){
+                    window.location.href = "home.html";
+                }
+                else{
+                    btn.disabled = false;
+                    btn.classList.remove("requested");
                     console.log("Invalid Credentials!!")
+                    var message =  document.getElementById("message")
+                    message.textContent = "Invalid Credentials!!"
+                    message.style.color = "#ff3f3f"
                 }
             })
-            .then(() => window.location.href = "Verification.html")
+           
+        }
+
+
+
+
+
+
+
+
+
+        const verify = () => {
+            var verify_btn = document.querySelector(".verify-btn");
+            verify_btn.disabled = true;
+
+            var otp =document.querySelector(".otp-token").value;
+            console.log(otp)
+            fetch("http://localhost:8080/user/otp/"+otp)
+            .then((response) =>{
+                if(response.status == 200){
+                    window.location.href = "home.html"
+                    return  response.json
+                }else if (response.status == 404){
+                    verify_btn.disabled = false;
+                    verify_btn.classList.remove("requested");
+                    console.log("Invalid Credentials!!")
+                }else{
+                    verify_btn.disabled = false;
+                    verify_btn.classList.remove("requested");
+                    document.getElementById('errorText').textContent = "Invalid OTP!!"
+                }
+            })
+            .then((data) => console.log(data))
         }
     </script>
 </body>
